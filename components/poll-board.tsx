@@ -81,7 +81,7 @@ export default function PollBoard({ polls, currentUser }: PollBoardProps) {
             }}
           >
             <span className="status-text">
-              ใส่ Discord UID ของคุณ (หรือสร้าง UID เอง) เพื่อผูกกับผลโหวต
+              ใส่ UID ของคุณ (เช่น Discord UID หรือรหัสที่ทีมงานแจกให้) เพื่อผูกกับผลโหวต
             </span>
             <input
               type="text"

@@ -4,7 +4,13 @@ import { useEffect, useState } from "react";
 import type { PollWithStats, QuestionAnswer } from "@/lib/polls";
 import type { PollUser } from "@/lib/auth";
 
-type AnswerState = Record<string, string[]>;
+type AnswerState = Record<
+  string,
+  {
+    optionIds: string[];
+    textAnswer: string;
+  }
+>;
 
 type StatusState =
   | { type: "idle" }
@@ -21,13 +27,20 @@ const buildAnswerState = (answers: QuestionAnswer[] | null): AnswerState => {
     return {};
   }
   return answers.reduce<AnswerState>((acc, answer) => {
-    acc[answer.questionId] = answer.optionIds;
+    acc[answer.questionId] = {
+      optionIds: answer.optionIds ?? [],
+      textAnswer: answer.textAnswer ?? "",
+    };
     return acc;
   }, {});
 };
 
-const questionBadge = (allowMultiple: boolean) =>
-  allowMultiple ? "เลือกได้หลายคำตอบ" : "เลือกได้คำตอบเดียว";
+const questionBadge = (responseKind: string, allowMultiple: boolean) => {
+  if (responseKind === "text") {
+    return "ตอบเป็นข้อความ";
+  }
+  return allowMultiple ? "เลือกได้หลายคำตอบ" : "เลือกได้คำตอบเดียว";
+};
 
 export default function PollCard({ poll, currentUser }: PollCardProps) {
   const [pollState, setPollState] = useState(poll);
@@ -91,7 +104,8 @@ export default function PollCard({ poll, currentUser }: PollCardProps) {
     allowMultiple: boolean,
   ) => {
     setAnswers((prev) => {
-      const current = prev[questionId] ?? [];
+      const current = prev[questionId]?.optionIds ?? [];
+      const base = prev[questionId] ?? { optionIds: [], textAnswer: "" };
       let nextSelection: string[];
       if (allowMultiple) {
         nextSelection = current.includes(optionId)
@@ -102,9 +116,19 @@ export default function PollCard({ poll, currentUser }: PollCardProps) {
       }
       return {
         ...prev,
-        [questionId]: nextSelection,
+        [questionId]: { ...base, optionIds: nextSelection },
       };
     });
+  };
+
+  const handleTextChange = (questionId: string, text: string) => {
+    setAnswers((prev) => ({
+      ...prev,
+      [questionId]: {
+        ...(prev[questionId] ?? { optionIds: [], textAnswer: "" }),
+        textAnswer: text,
+      },
+    }));
   };
 
   const submitVote = async () => {
@@ -112,12 +136,22 @@ export default function PollCard({ poll, currentUser }: PollCardProps) {
       setStatus({ type: "error", message: "กรุณาเข้าสู่ระบบก่อน" });
       return;
     }
-    const payload = Object.entries(answers)
-      .filter(([, optionIds]) => optionIds.length)
-      .map<QuestionAnswer>(([questionId, optionIds]) => ({
-        questionId,
-        optionIds,
-      }));
+    const payload: QuestionAnswer[] = [];
+
+    pollState.questions.forEach((question) => {
+      const entry = answers[question.id];
+      if (question.responseKind === "text") {
+        const text = entry?.textAnswer.trim();
+        if (text) {
+          payload.push({ questionId: question.id, textAnswer: text });
+        }
+        return;
+      }
+      const optionIds = entry?.optionIds ?? [];
+      if (optionIds.length) {
+        payload.push({ questionId: question.id, optionIds });
+      }
+    });
 
     if (!payload.length) {
       setStatus({ type: "error", message: "เลือกคำตอบก่อนส่ง" });
@@ -158,34 +192,53 @@ export default function PollCard({ poll, currentUser }: PollCardProps) {
       </p>
 
       {pollState.questions.map((question) => {
-        const selection = answers[question.id] ?? [];
+        const selection = answers[question.id]?.optionIds ?? [];
+        const textValue = answers[question.id]?.textAnswer ?? "";
         return (
           <div key={question.id} className="question-block">
             <h3>{question.text}</h3>
             <span className="status-text">
-              {questionBadge(question.allowMultiple)}
+              {questionBadge(question.responseKind, question.allowMultiple)}
             </span>
-            {question.options.map((option) => (
-              <div key={option.id} className="option-line">
-                <label>
-                  <input
-                    type={question.allowMultiple ? "checkbox" : "radio"}
-                    name={question.id}
-                    checked={selection.includes(option.id)}
-                    disabled={!currentUser || isSubmitting}
-                    onChange={() =>
-                      toggleOption(
-                        question.id,
-                        option.id,
-                        question.allowMultiple,
-                      )
-                    }
-                  />
-                  <span>{option.text}</span>
-                </label>
-                <span className="badge">{option.votes} โหวต</span>
-              </div>
-            ))}
+            {question.responseKind === "text" ? (
+              <textarea
+                value={textValue}
+                onChange={(e) => handleTextChange(question.id, e.target.value)}
+                placeholder="พิมพ์คำตอบของคุณที่นี่"
+                style={{
+                  width: "100%",
+                  minHeight: "80px",
+                  padding: "0.6rem",
+                  borderRadius: 10,
+                  border: "1px solid rgba(148,163,184,0.4)",
+                  background: "rgba(15,23,42,0.5)",
+                  color: "#e2e8f0",
+                }}
+                disabled={!currentUser || isSubmitting}
+              />
+            ) : (
+              question.options.map((option) => (
+                <div key={option.id} className="option-line">
+                  <label>
+                    <input
+                      type={question.allowMultiple ? "checkbox" : "radio"}
+                      name={question.id}
+                      checked={selection.includes(option.id)}
+                      disabled={!currentUser || isSubmitting}
+                      onChange={() =>
+                        toggleOption(
+                          question.id,
+                          option.id,
+                          question.allowMultiple,
+                        )
+                      }
+                    />
+                    <span>{option.text}</span>
+                  </label>
+                  <span className="badge">{option.votes} โหวต</span>
+                </div>
+              ))
+            )}
           </div>
         );
       })}

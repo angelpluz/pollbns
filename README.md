@@ -23,6 +23,14 @@ Interactive multi-question poll built with Next.js App Router. Users enter their
    ```
 4. Visit http://localhost:3000, ใส่ UID แล้วเริ่มโหวตได้เลย
 
+## Database migration
+
+Run `sql/bns-reds-survey.sql` on your MySQL instance. It will:
+
+- Add the `response_kind` column to `poll_questions`
+- Create the `poll_text_answers` table for open-text responses
+- Insert the latest “แบบสอบถาม BNS REDS” poll (questions + choices)
+
 ## Available Scripts
 
 - `npm run dev` – Next.js dev server with hot reload
