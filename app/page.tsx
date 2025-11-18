@@ -3,9 +3,13 @@ import { listPolls } from "@/lib/polls";
 import { getUserCookieName, getUserById } from "@/lib/auth";
 import { cookies } from "next/headers";
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   const polls = await listPolls();
-  const userId = cookies().get(getUserCookieName())?.value ?? null;
+  const survey = polls.find((poll) => poll.id === "bns-reds-feedback");
+  const cookieStore = await cookies();
+  const userId = cookieStore.get(getUserCookieName())?.value ?? null;
   const user = userId ? await getUserById(userId) : null;
 
   return (
@@ -13,15 +17,19 @@ export default async function HomePage() {
       <header style={{ marginBottom: "2rem" }}>
         <p className="badge">UID verified poll</p>
         <h1 style={{ fontSize: "2.5rem", marginBottom: "0.75rem" }}>
-          Pulse check แบบ real-time ของทีมเรา
+          แบบสอบถาม BNS REDS
         </h1>
         <p style={{ color: "#cbd5f5", maxWidth: 640 }}>
-          ลงชื่อด้วย UID (หรือ Discord ID) เพื่อผูกกับผลโหวต และดูผลรวมอัปเดตทันที
-          ทุกคำถามรองรับ multi-question, multi-select ตามที่คุยกันไว้.
+          ใส่ UID (เช่น Discord UID หรือรหัสที่ทีมงานแจกให้) เพื่อผูกผลโหวตกับตัวเอง
+          แบบสอบถามนี้รองรับทั้งเลือกหลายข้อและตอบเป็นข้อความ
         </p>
       </header>
 
-      <PollBoard polls={polls} currentUser={user} />
+      {survey ? (
+        <PollBoard polls={[survey]} currentUser={user} />
+      ) : (
+        <p style={{ color: "#fca5a5" }}>ไม่พบแบบสอบถามในระบบ</p>
+      )}
     </div>
   );
 }

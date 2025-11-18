@@ -13,14 +13,17 @@ CREATE TABLE IF NOT EXISTS poll_text_answers (
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Remove previous version of the survey if it exists
-DELETE FROM polls WHERE id = 'bns-reds-feedback';
+DELETE FROM polls WHERE id NOT IN ('bns-reds-feedback');
 
 INSERT INTO polls (id, title, description)
 VALUES (
   'bns-reds-feedback',
   'แบบสอบถาม BNS REDS',
   'สำรวจความคิดเห็นผู้เล่นเกี่ยวกับประสบการณ์ BNS REDS'
-);
+)
+ON DUPLICATE KEY UPDATE
+  title = VALUES(title),
+  description = VALUES(description);
 
 SET @poll_id := 'bns-reds-feedback';
 

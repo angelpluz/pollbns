@@ -7,9 +7,11 @@ export const dynamic = "force-dynamic";
 
 export async function POST(
   request: Request,
-  context: { params: { pollId: string } },
+  context: { params: Promise<{ pollId: string }> },
 ) {
-  const userId = cookies().get(getUserCookieName())?.value ?? null;
+  const { pollId } = await context.params;
+  const cookieStore = await cookies();
+  const userId = cookieStore.get(getUserCookieName())?.value ?? null;
   if (!userId) {
     return NextResponse.json(
       { error: "กรุณาเข้าสู่ระบบด้วย UID ก่อน" },
@@ -36,7 +38,7 @@ export async function POST(
   }
 
   try {
-    const poll = await submitVote(context.params.pollId, user.id, payload);
+    const poll = await submitVote(pollId, user.id, payload);
     if (!poll) {
       return NextResponse.json(
         { error: "ไม่พบ poll นี้" },

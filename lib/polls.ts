@@ -200,7 +200,8 @@ export const getUserVote = async (
 
   textRows.forEach((row) => {
     const questionId = row.question_id.toString();
-    const entry = grouped.get(questionId) ?? { questionId };
+    const entry =
+      grouped.get(questionId) ?? ({ questionId } as QuestionAnswer);
     entry.textAnswer = row.answer_text as string;
     grouped.set(questionId, entry);
   });

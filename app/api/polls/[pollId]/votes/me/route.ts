@@ -7,9 +7,11 @@ export const dynamic = "force-dynamic";
 
 export async function GET(
   _request: Request,
-  context: { params: { pollId: string } },
+  context: { params: Promise<{ pollId: string }> },
 ) {
-  const userId = cookies().get(getUserCookieName())?.value ?? null;
+  const { pollId } = await context.params;
+  const cookieStore = await cookies();
+  const userId = cookieStore.get(getUserCookieName())?.value ?? null;
   if (!userId) {
     return NextResponse.json({ vote: null });
   }
@@ -17,6 +19,6 @@ export async function GET(
   if (!user) {
     return NextResponse.json({ vote: null });
   }
-  const vote = await getUserVote(context.params.pollId, user.id);
+  const vote = await getUserVote(pollId, user.id);
   return NextResponse.json({ vote });
 }

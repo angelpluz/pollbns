@@ -5,9 +5,10 @@ export const dynamic = "force-dynamic";
 
 export async function GET(
   _request: Request,
-  context: { params: { pollId: string } },
+  context: { params: Promise<{ pollId: string }> },
 ) {
-  const poll = await getPoll(context.params.pollId);
+  const { pollId } = await context.params;
+  const poll = await getPoll(pollId);
   if (!poll) {
     return NextResponse.json(
       { error: "ไม่พบ poll ที่ขอ" },

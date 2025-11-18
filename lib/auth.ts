@@ -12,8 +12,9 @@ const COOKIE_NAME = process.env.USER_COOKIE_NAME ?? "poll_user_id";
 
 export const getUserCookieName = () => COOKIE_NAME;
 
-export const readUserIdFromCookies = () => {
-  return cookies().get(COOKIE_NAME)?.value ?? null;
+export const readUserIdFromCookies = async () => {
+  const cookieStore = await cookies();
+  return cookieStore.get(COOKIE_NAME)?.value ?? null;
 };
 
 export const upsertUserProfile = async (id: string, username: string) => {
