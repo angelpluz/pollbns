@@ -1,6 +1,6 @@
 ﻿# PollBNS (Next.js + UID Auth)
 
-Interactive multi-question poll built with Next.js App Router. Users enter their Discord UID (or any unique ID) to submit multi-select answers and instantly see aggregated counts backed by MySQL.
+Interactive multi-question poll built with Next.js App Router. Users enter their UID to submit multi-select/multi-text answers, and admins can review a dashboard.
 
 ## Getting Started
 
@@ -16,20 +16,22 @@ Interactive multi-question poll built with Next.js App Router. Users enter their
    DB_PASSWORD=xxxxxxxx
    DB_NAME=shopdbtython
    USER_COOKIE_NAME=poll_user_id
+   ADMIN_COOKIE_NAME=poll_admin
+   ADMIN_DASHBOARD_PASSWORD=supersecret
    ```
 3. Start the dev server
    ```
    npm run dev
    ```
-4. Visit http://localhost:3000, ใส่ UID แล้วเริ่มโหวตได้เลย
+4. Visit http://localhost:3000 ใส่ UID แล้วเริ่มโหวต
+5. เปิด http://localhost:3000/dashboard ใส่รหัส ADMIN_DASHBOARD_PASSWORD เพื่อดู dashboard
 
 ## Database migration
 
 Run `sql/bns-reds-survey.sql` on your MySQL instance. It will:
 
-- Add the `response_kind` column to `poll_questions`
-- Create the `poll_text_answers` table for open-text responses
-- Insert the latest “แบบสอบถาม BNS REDS” poll (questions + choices)
+- Ensure `poll_questions.response_kind` and `poll_text_answers` exist
+- Replace all polls with the latest “แบบสอบถาม BNS REDS”
 
 ## Available Scripts
 
@@ -43,9 +45,10 @@ Run `sql/bns-reds-survey.sql` on your MySQL instance. It will:
 - `GET /api/polls` – list polls + stats
 - `GET /api/polls/:pollId` – detail for a single poll
 - `GET /api/polls/:pollId/votes/me` – previously submitted choices for the current UID
-- `POST /api/polls/:pollId/votes` – submit/update vote (body array of `{ questionId, optionIds }`)
+- `POST /api/polls/:pollId/votes` – submit/update vote (body array of `{ questionId, optionIds?, textAnswer? }`)
 - `POST /api/auth/manual` – register/login with UID (sets cookie)
 - `POST /api/auth/logout` – clears the UID cookie
 - `GET /api/auth/me` – returns the profile tied to the current UID cookie
+- `POST /api/admin/login` / `POST /api/admin/logout` – manage dashboard session
 
 Poll data is backed by MySQL via `lib/db.ts` + `lib/polls.ts`. Update the `.env` with your own credentials if they change.

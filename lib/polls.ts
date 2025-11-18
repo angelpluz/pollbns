@@ -56,6 +56,15 @@ type QuestionMetaRow = RowDataPacket & {
   option_id: number | null;
 };
 
+export type TextAnswer = {
+  id: number;
+  questionId: string;
+  questionText: string;
+  userId: string;
+  answerText: string;
+  submittedAt: Date;
+};
+
 export class PollError extends Error {
   status: number;
 
@@ -207,6 +216,35 @@ export const getUserVote = async (
   });
 
   return [...grouped.values()];
+};
+
+export const getTextAnswers = async (pollId: string): Promise<TextAnswer[]> => {
+  const [rows] = await getPool().query<RowDataPacket[]>(
+    `
+    SELECT 
+      t.submission_id,
+      q.id as question_id,
+      q.question_text,
+      s.user_id,
+      t.answer_text,
+      s.submitted_at
+    FROM poll_text_answers t
+    JOIN poll_submissions s ON s.id = t.submission_id
+    JOIN poll_questions q ON q.id = t.question_id
+    WHERE s.poll_id = ?
+    ORDER BY q.sort_order, s.submitted_at DESC
+  `,
+    [pollId],
+  );
+
+  return rows.map((row) => ({
+    id: Number(row.submission_id),
+    questionId: row.question_id.toString(),
+    questionText: row.question_text as string,
+    userId: row.user_id.toString(),
+    answerText: row.answer_text as string,
+    submittedAt: new Date(row.submitted_at as string),
+  }));
 };
 
 type QuestionStructure = {

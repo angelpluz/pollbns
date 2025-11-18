@@ -1,5 +1,4 @@
 ﻿import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { getUserCookieName, getUserById, upsertUserProfile } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
