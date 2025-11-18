@@ -1,0 +1,134 @@
+﻿:root {
+  color-scheme: light dark;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: #0f1115;
+  color: #f1f5f9;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(circle at top, #1f2937, #0f172a 70%);
+}
+
+main {
+  padding: 2rem;
+}
+
+a {
+  color: #5eead4;
+}
+
+button {
+  cursor: pointer;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.poll-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 1.5rem;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 25px 80px rgba(14, 165, 233, 0.15);
+}
+
+.poll-card h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.4rem;
+}
+
+.poll-card p {
+  margin: 0 0 1rem;
+  color: #cbd5f5;
+}
+
+.question-block {
+  margin-bottom: 1.5rem;
+}
+
+.question-block h3 {
+  font-size: 1rem;
+  margin-bottom: 0.35rem;
+}
+
+.option-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0.5rem;
+  border-radius: 8px;
+  transition: background 0.15s ease;
+}
+
+.option-line:hover {
+  background: rgba(148, 163, 184, 0.15);
+}
+
+.option-line label {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  border-radius: 12px;
+  padding: 0.2rem 0.75rem;
+  background: rgba(248, 250, 252, 0.08);
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.primary-button {
+  border: none;
+  border-radius: 10px;
+  padding: 0.75rem 1.4rem;
+  font-weight: 600;
+  background: linear-gradient(120deg, #2dd4bf, #22d3ee);
+  color: #032b3a;
+}
+
+.secondary-button {
+  border-radius: 10px;
+  padding: 0.7rem 1.1rem;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  background: transparent;
+  color: #e2e8f0;
+}
+
+.status-text {
+  font-size: 0.9rem;
+  color: #bae6fd;
+}
+
+.alert {
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  margin-top: 0.5rem;
+}
+
+.alert-success {
+  background: rgba(34, 197, 94, 0.25);
+}
+
+.alert-error {
+  background: rgba(248, 113, 113, 0.2);
+}

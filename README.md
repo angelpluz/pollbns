@@ -1,32 +1,43 @@
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vercel/examples/tree/main/framework-boilerplates/hono-bun&template=hono)
+﻿# PollBNS (Next.js + UID Auth)
 
-Live Example: https://example-hono-bun.vercel.app/
+Interactive multi-question poll built with Next.js App Router. Users enter their Discord UID (or any unique ID) to submit multi-select answers and instantly see aggregated counts backed by MySQL.
 
-Prerequisites:
+## Getting Started
 
-- [Vercel CLI](https://vercel.com/docs/cli) installed globally
+1. Install dependencies
+   ```
+   npm install
+   ```
+2. Create a `.env.local` (or `.env`) file with the following values.
+   ```
+   DB_HOST=110.78.166.171
+   DB_PORT=3306
+   DB_USER=admin_shopdb
+   DB_PASSWORD=xxxxxxxx
+   DB_NAME=shopdbtython
+   USER_COOKIE_NAME=poll_user_id
+   ```
+3. Start the dev server
+   ```
+   npm run dev
+   ```
+4. Visit http://localhost:3000, ใส่ UID แล้วเริ่มโหวตได้เลย
 
-To develop locally:
+## Available Scripts
 
-```
-bun install
-vc dev
-```
+- `npm run dev` – Next.js dev server with hot reload
+- `npm run build` – production build
+- `npm run start` – start the compiled server
+- `npm run lint` – lint with `eslint-config-next`
 
-```
-open http://localhost:3000
-```
+## API Surface
 
-To build locally:
+- `GET /api/polls` – list polls + stats
+- `GET /api/polls/:pollId` – detail for a single poll
+- `GET /api/polls/:pollId/votes/me` – previously submitted choices for the current UID
+- `POST /api/polls/:pollId/votes` – submit/update vote (body array of `{ questionId, optionIds }`)
+- `POST /api/auth/manual` – register/login with UID (sets cookie)
+- `POST /api/auth/logout` – clears the UID cookie
+- `GET /api/auth/me` – returns the profile tied to the current UID cookie
 
-```
-bun install
-vc build
-```
-
-To deploy:
-
-```
-bun install
-vc deploy
-```
+Poll data is backed by MySQL via `lib/db.ts` + `lib/polls.ts`. Update the `.env` with your own credentials if they change.
